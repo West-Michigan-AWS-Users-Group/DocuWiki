@@ -13,6 +13,13 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 * `npx cdk diff`    compare deployed stack with current state
 * `npx cdk synth`   emits the synthesized CloudFormation template
 
+# Deployment
+This stack has an account number parameter you will need to pass in at deploy time.
+
+```shell
+AWS_DEFAULT_PROFILE=account-alias npx cdk deploy --parameters AccountNumber=123456789123
+```
+
 # DocuWiki on AWS
 - Linuxserver.io container image of DocuWiki
 - Deployed on ECS Fargate w/ EFS for file persistence
@@ -21,8 +28,8 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 This app is configured with ECS exec. Initial setup requires configuration of user credentials, which can be accomplished
 via a bash shell in the ECS Fargate container.  [Install the SSM plugin, for the AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html).
 
-To log into the container, use the following command:
+To log into the container, use the following command after deploying CDK
 ```
-aws ecs execute-command --cluster <cluster-name> --task <task-id> --container <container-name> --command "/bin/bash" --interactive
+./ecs-exec.sh <ecsClusterId>
 ```
 

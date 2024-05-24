@@ -11,7 +11,31 @@ export class DocuWikiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    // Define a new CloudFormation parameter for the account number
+    const accountNumberParam = new cdk.CfnParameter(this, 'AccountNumber', {
+      type: 'String',
+      description: 'The AWS account number',
+    });
+
     const vpc = new ec2.Vpc(this, 'VPC');
+
+    vpc.addInterfaceEndpoint('ssm-messages', {
+      privateDnsEnabled: true,
+      service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+      subnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }),
+    });
+
+    vpc.addInterfaceEndpoint('ec2-messages', {
+      privateDnsEnabled: true,
+      service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
+      subnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }),
+    });
+
+    vpc.addInterfaceEndpoint('ssm', {
+      privateDnsEnabled: true,
+      service: ec2.InterfaceVpcEndpointAwsService.SSM,
+      subnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }),
+    });
 
     const cluster = new ecs.Cluster(this, 'Cluster', {
     });
@@ -36,6 +60,12 @@ export class DocuWikiStack extends cdk.Stack {
           resources: ['*']
         }),
     )
+
+    fargateTaskDefinition.addToTaskRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['sts:AssumeRole'],
+      resources: [`arn:aws:iam::${accountNumberParam.value}:*`],
+    }));
 
     const securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
       vpc,
@@ -78,7 +108,7 @@ export class DocuWikiStack extends cdk.Stack {
       cluster,
       taskDefinition: fargateTaskDefinition,
       desiredCount: 1,
-      assignPublicIp: true,
+      assignPublicIp: false,
       vpcSubnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }),
       securityGroups: [securityGroup],
       enableExecuteCommand: true,
@@ -118,6 +148,6 @@ export class DocuWikiStack extends cdk.Stack {
     });
 
     new CfnOutput(this, 'LoadBalancerDNS', { value: alb.loadBalancerDnsName, });
-
+    new CfnOutput(this, 'ecsClusterId', { value: cluster.clusterName, });
   }
 }
