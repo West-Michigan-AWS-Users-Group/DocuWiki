@@ -11,6 +11,9 @@ export class DocuWikiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    cdk.Tags.of(this).add('Service', 'DocuWiki');
+    cdk.Tags.of(this).add('Environment', 'Sandbox-A');
+
     // Define a new CloudFormation parameter for the account number
     const accountNumberParam = new cdk.CfnParameter(this, 'AccountNumber', {
       type: 'String',
