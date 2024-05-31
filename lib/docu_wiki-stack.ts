@@ -12,15 +12,22 @@ export class DocuWikiStack extends cdk.Stack {
     super(scope, id, props);
 
     cdk.Tags.of(this).add('Service', 'DocuWiki');
-    cdk.Tags.of(this).add('Environment', 'Sandbox-A');
+    cdk.Tags.of(this).add('Environment', 'productionA');
 
     // Define a new CloudFormation parameter for the account number
-    const accountNumberParam = new cdk.CfnParameter(this, 'AccountNumber', {
+    const accountNumberParam = new cdk.CfnParameter(this, 'accountNumberParam', {
       type: 'String',
       description: 'The AWS account number',
     });
 
-    const vpc = new ec2.Vpc(this, 'VPC');
+    const vpc = new ec2.Vpc(this, 'VPC',
+        {
+          availabilityZones: ['us-east-2a', 'us-east-2b'],
+          natGateways: 1,
+          // vpcName starts with the environment name dynamically
+          vpcName: id + '-VPC',
+        },
+  );
 
     vpc.addInterfaceEndpoint('ssm-messages', {
       privateDnsEnabled: true,
@@ -41,6 +48,8 @@ export class DocuWikiStack extends cdk.Stack {
     });
 
     const cluster = new ecs.Cluster(this, 'Cluster', {
+      vpc,
+        clusterName: id + '-Cluster',
     });
 
     const fargateTaskDefinition = new ecs.FargateTaskDefinition(this, 'TaskDef', {

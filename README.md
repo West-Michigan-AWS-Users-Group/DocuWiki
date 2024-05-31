@@ -17,13 +17,14 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 This stack has an account number parameter you will need to pass in at deploy time.
 
 ```shell
-AWS_DEFAULT_PROFILE=account-alias npx cdk deploy --parameters AccountNumber=123456789123
+AWS_DEFAULT_PROFILE=account-alias npx cdk deploy --parameters accountNumberParam=123456789123
 ```
 
 # DocuWiki on AWS
 - Linuxserver.io container image of DocuWiki
 - Deployed on ECS Fargate w/ EFS for file persistence
-- After deployment, set up DocuWiki by visiting the ALB address
+- After deployment, set up DocuWiki by visiting the ALB address and setting up credentials https://www.dokuwiki.org/installer
+![install.php.png](install.php.png)
 
 This app is configured with ECS exec. Initial setup requires configuration of user credentials, which can be accomplished
 via a bash shell in the ECS Fargate container.  [Install the SSM plugin, for the AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html).
