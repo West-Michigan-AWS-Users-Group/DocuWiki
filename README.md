@@ -29,8 +29,12 @@ AWS_DEFAULT_PROFILE=account-alias npx cdk deploy --parameters accountNumberParam
 This app is configured with ECS exec. Initial setup requires configuration of user credentials, which can be accomplished
 via a bash shell in the ECS Fargate container.  [Install the SSM plugin, for the AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html).
 
-To log into the container, use the following command after deploying CDK
+To log into the container, use the following command after deploying CDK to interact with the files on the EFS volume.
 ```
 ./ecs-exec.sh <ecsClusterId>
 ```
 
+Outstanding issues:
+- Deploy using GitHub actions. 
+- Add certificate and custom domain to the ALB
+- 
